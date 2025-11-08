@@ -2,8 +2,6 @@ import os
 import piexif
 from PIL import Image
 from geopy.geocoders import Nominatim
-import tempfile
-import shutil
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
@@ -22,17 +20,7 @@ def rational_to_deg(value):
 
 
 def safe_save_jpeg(img, file_path, exif_bytes):
-    dir_name = os.path.dirname(file_path)
-    with tempfile.NamedTemporaryFile(delete=False, dir=dir_name, suffix=".jpg") as tmp:
-        temp_path = tmp.name
-
-    try:
-        img.save(temp_path, exif=exif_bytes)
-        shutil.move(temp_path, file_path)
-    except Exception as e:
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-        raise e
+    piexif.insert(exif_bytes, file_path)
 
 
 def process_image(file_path):

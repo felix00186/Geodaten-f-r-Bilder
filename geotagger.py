@@ -81,6 +81,7 @@ def process_image(file_path):
                     value = address[subkey]
                     if value not in keywords:
                         keywords.append(value)
+                        break
 
         # EXIF schreiben
         print([dir_name, file_name, keywords])

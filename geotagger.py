@@ -33,6 +33,16 @@ def process_image(file_path):
             return file_path, "no_exif", None
 
         exif_dict = piexif.load(exif_info)
+        
+        # Bereits getaggt? -> überspringen
+        existing = exif_dict.get("0th", {}).get(piexif.ImageIFD.XPKeywords, b"")
+        if existing:
+            # XPKeywords ist UTF-16-LE und häufig mit Nullterminator gespeichert
+            if isinstance(existing, (tuple, list)):
+                existing = bytes(existing)
+            if isinstance(existing, (bytes, bytearray)) and existing.rstrip(b"\x00"):
+                return file_path, "skipped_already_marked", None
+        
         gps_data = exif_dict.get("GPS", None)
         if not gps_data:
             return file_path, "no_gps", None
